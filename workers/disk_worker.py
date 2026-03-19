@@ -1,81 +1,87 @@
 import subprocess
-import re
 import os
 from workers.base_worker import BaseWorker
 
 class DiskWorker(BaseWorker):
     def process(self, evidence_path: str) -> dict:
-        self.log(f"Starting Sleuth Kit analysis on: {evidence_path}")
+        self.log(f"Deep Disk Analysis started: {evidence_path}")
         
-        if not os.path.exists(evidence_path):
-            return self.create_result("DiskWorker", "error", errors="Image file not found.")
-
         try:
-            # 1. Run mmls to find partitions
-            # mmls identifies the partition table (DOS, GPT, etc.)
-            mmls_cmd = ["mmls", evidence_path]
-            mmls_result = subprocess.run(mmls_cmd, capture_output=True, text=True)
+            # 1. Map Partitions (mmls)
+            mmls_output = subprocess.check_output(["mmls", evidence_path], text=True)
+            partition_offset = self._find_main_partition(mmls_output)
             
-            if mmls_result.returncode != 0:
-                return self.create_result("DiskWorker", "error", errors="mmls failed to read partition table.")
+            if not partition_offset:
+                return self.create_result("DiskWorker", "error", errors="No data partition found.")
 
-            # 2. Extract the start sector of the largest Data/Linux/NTFS partition
-            # We use Regex to find the partition that isn't 'Unallocated' or 'Table'
-            partition_start = self._find_main_partition(mmls_result.stdout)
-            
-            if not partition_start:
-                return self.create_result("DiskWorker", "error", errors="Could not find a valid data partition.")
+            # 2. Get File System Stats (fsstat)
+            # This tells us if it's NTFS, FAT32, etc. and the Block Size
+            fs_info = subprocess.check_output(["fsstat", "-o", partition_offset, evidence_path], text=True)
+            fs_type = "Unknown"
+            for line in fs_info.splitlines():
+                if "File System Type:" in line:
+                    fs_type = line.split(":")[1].strip()
 
-            # 3. Run fls to list files (Recursive -r, Display Path -p)
-            # -o is the offset (where the partition starts)
-            fls_cmd = ["fls", "-r", "-p", "-o", partition_start, evidence_path]
-            fls_result = subprocess.run(fls_cmd, capture_output=True, text=True)
+            # 3. List Files (fls)
+            # We'll grab the first 20 files found to show in the report
+            fls_output = subprocess.check_output(["fls", "-r", "-p", "-o", partition_offset, evidence_path], text=True)
+            file_list = self._parse_fls(fls_output)
 
-            # 4. Parse the fls text output into a structured list
-            file_system_map = self._parse_fls(fls_result.stdout)
+            # 4. DATA CARVING EXAMPLE: Extract a specific interesting file (icat)
+            # Let's say we find an EXE on the disk. We can extract it for Capa!
+            extracted_path = None
+            for file in file_list:
+                if file['path'].endswith(".exe"):
+                    extracted_path = self.extract_file(evidence_path, partition_offset, file['inode'], "extracted_suspect.exe")
+                    break
 
             return self.create_result(
                 worker_name="DiskWorker-TSK",
                 status="success",
                 findings={
-                    "partition_offset": partition_start,
-                    "total_files_found": len(file_system_map),
-                    "file_system_hierarchy": file_system_map[:50]  # Return top 50 for summary
+                    "fs_type": fs_type,
+                    "partition_offset": partition_offset,
+                    "total_files": len(file_list),
+                    "sample_files": file_list[:10],  # Show a sample in the report
+                    "extracted_evidence": extracted_path if extracted_path else "None found"
                 }
             )
 
         except Exception as e:
             return self.create_result("DiskWorker", "error", errors=str(e))
 
+    def extract_file(self, img_path, offset, inode, output_name):
+        """
+        The 'icat' magic: Extracting raw bytes from a disk image based on Inode.
+        This allows you to analyze a file even if the OS is locked.
+        """
+        output_dir = "evidence_output/extracted"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        target_path = os.path.join(output_dir, output_name)
+        
+        # icat -o [offset] [image] [inode] > [output_file]
+        with open(target_path, "wb") as f:
+            cmd = ["icat", "-o", offset, img_path, inode]
+            subprocess.run(cmd, stdout=f)
+        
+        return target_path
+
     def _find_main_partition(self, mmls_output):
-        """Simple logic to find the starting sector of the primary data partition."""
-        lines = mmls_output.splitlines()
-        for line in lines:
-            # Look for common data partition types (Linux, NTFS, Win95)
+        for line in mmls_output.splitlines():
             if any(x in line for x in ["Linux", "Win95", "NTFS", "0x83", "0x07"]):
-                parts = line.split()
-                # Usually the start sector is the 3rd column in mmls output
-                return parts[2]
+                return line.split()[2] # The 'Start' sector column
         return None
 
-    def _parse_fls(self, fls_output):
-        """Parses fls output lines like: 'r/r 12345: /folder/file.txt'"""
+    def _parse_fls(self, output):
         files = []
-        for line in fls_output.splitlines():
+        for line in output.splitlines():
             if ":" in line:
                 meta, path = line.split(":", 1)
-                file_type = "Deleted" if "*" in meta else "Allocated"
                 files.append({
                     "path": path.strip(),
-                    "status": file_type,
-                    "inode": meta.split()[-1]
+                    "inode": meta.split()[-1].replace("*", ""), # Remove the 'deleted' asterisk
+                    "is_deleted": "*" in meta
                 })
         return files
-
-    def create_result(self, worker_name, status, findings=None, errors=None):
-        return {
-            "worker": worker_name,
-            "status": status,
-            "findings": findings or {},
-            "error": errors
-        }
