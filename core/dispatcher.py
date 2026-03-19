@@ -1,36 +1,32 @@
-# test_worker.py
-import json
-from doc_worker import DocWorker
+from workers.doc_worker import DocWorker
+from workers.capa_worker import CapaWorker
 
-def run_test():
-    # 1. Initialize the worker
-    worker = DocWorker()
-    
-    # 2. Check if the tool (ExifTool) is actually installed
-    if not worker.check_dependency():
-        print("[!] Error: ExifTool is not installed. Run ./setup.sh first.")
-        return
+class Dispatcher:
+    def __init__(self):
+        # Initialize all workers
+        self.workers = {
+            'pdf': DocWorker(),
+            'docx': DocWorker(),
+            'exe': CapaWorker(),
+            'dll': CapaWorker()
+        }
 
-    # 3. Define the test file
-    target_file = "/workspaces/ForensiFlow/evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf"
-    
-    print(f"[+] Starting analysis on: {target_file}")
-    
-    # 4. Run the process
-    result = worker.process(target_file)
-    
-    # 5. Pretty print the results
-    if "error" in result:
-        print(f"[!] Worker Error: {result['error']}")
-    else:
-        print("\n--- FORENSIC MARKERS ---")
-        print(json.dumps(result['forensic_markers'], indent=4))
+    def dispatch(self, evidence_path):
+        # 1. Get file extension
+        ext = evidence_path.split('.')[-1].lower()
+        worker = self.workers.get(ext)
         
-        print("\n--- RAW METADATA (Partial) ---")
-        # Just show the first 10 keys so the screen isn't flooded
-        raw_keys = list(result['raw_metadata'].keys())[:10]
-        for key in raw_keys:
-            print(f"{key}: {result['raw_metadata'][key]}")
+        if not worker:
+            return {"status": "error", "error": f"No worker available for extension: {ext}"}
 
-if __name__ == "__main__":
-    run_test()
+        # 2. Check Dependency (The "Friend's" logic added here)
+        # We assume every worker has a check_dependency() method now
+        if hasattr(worker, 'check_dependency') and not worker.check_dependency():
+            return {"status": "error", "error": f"Tool for {worker.__class__.__name__} is not installed."}
+
+        # 3. Process the file
+        print(f"[Dispatcher] Routing {evidence_path} to {worker.__class__.__name__}")
+        try:
+            return worker.process(evidence_path)
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
