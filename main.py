@@ -8,7 +8,7 @@ def main():
     manager = EvidenceManager(case_name)
 
     # 2. Define the evidence file
-    target_file = "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf"
+    target_file = "evidence/test_virus.exe"  # Change this to your actual test file path
     
     # 3. Check if file exists before proceeding
     if not os.path.exists(target_file):
