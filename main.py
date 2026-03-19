@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import datetime
 from core.evidence_manager import EvidenceManager
@@ -12,11 +13,13 @@ def main():
     # The Dispatcher acts as the "Brain"
     dispatcher = Dispatcher()
 
-    # 2. Point to the evidence
-    target_file = "evidence/valid_test.exe"  # Change this to your test file in the /evidence folder
-    
+    # 2. Point to the evidence (CLI override supported)
+    default_target = "evidence/valid_test.exe"
+    target_file = sys.argv[1] if len(sys.argv) > 1 else default_target
+
     if not os.path.exists(target_file):
-        print(f"[!] Error: {target_file} not found. Please place it in the /evidence folder.")
+        print(f"[!] Error: {target_file} not found.")
+        print("Usage: python3 main.py [evidence/<file>]")
         return
 
     # 3. Phase 1: Evidence Registration (Legal Layer)

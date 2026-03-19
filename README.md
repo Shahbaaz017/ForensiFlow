@@ -9,11 +9,16 @@ An automated digital forensics orchestration framework that streamlines evidence
    ```
 2. Run analysis:
    ```bash
-   python3 main.py evidence/<evidence-file>
+   python3 main.py [evidence/<evidence-file>]
    ```
+
+   - If no argument is provided, `main.py` defaults to `evidence/valid_test.exe`.
+   - The program writes a JSON report (and audit log) to `evidence_output/`.
+
 3. Reports are saved to `evidence_output/`.
 
 ## Notes
 - The main entrypoint is `main.py`.
 - Workers are in `workers/`; doc worker uses ExifTool.
+- The framework always runs YARA analysis, then runs the primary worker based on file type (PDF → DocWorker, EXE → CapaWorker).
 
