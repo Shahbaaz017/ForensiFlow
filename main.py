@@ -1,21 +1,33 @@
 from core.evidence_manager import EvidenceManager
+from workers.capa_worker import CapaWorker
+import os
 
 def main():
     # 1. Setup our Case
-    manager = EvidenceManager("Sample_Investigation_001")
+    case_name = "Sample_Investigation_001"
+    manager = EvidenceManager(case_name)
 
-    # 2. Point to a file you want to analyze
-    # (Put a file in a folder named 'evidence' first!)
-    file_to_analyze = "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf"
+    # 2. Define the evidence file
+    target_file = "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf"
     
-    # 3. Register the evidence
-    try:
-        manifest = manager.ingest(file_to_analyze)
-        print("--- Evidence Registered Successfully ---")
-        print(f"SHA256: {manifest['hashes']['sha256']}")
-        print("Check the 'output/' folder for your logs.")
-    except FileNotFoundError:
-        print(f"Error: Could not find {file_to_analyze}. Please create it first.")
+    # 3. Check if file exists before proceeding
+    if not os.path.exists(target_file):
+        print(f"Error: {target_file} not found.")
+        return
+
+    # 4. Register the evidence (Phase 1)
+    manifest = manager.ingest(target_file)
+    print(f"--- Evidence Registered: {manifest['hashes']['sha256']} ---")
+
+    # 5. Route to Worker (Phase 2 - Triage)
+    # We check if the file is an executable before running Capa
+    if target_file.lower().endswith(('.exe', '.dll', '.bin')):
+        print("Detected Executable: Running CapaWorker...")
+        worker = CapaWorker()
+        report = worker.run(target_file)
+        print(f"Analysis Results: {report['status']}")
+    else:
+        print(f"Skipping Capa: {target_file} is not an executable.")
 
 if __name__ == "__main__":
     main()
