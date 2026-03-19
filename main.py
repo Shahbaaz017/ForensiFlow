@@ -1,59 +1,52 @@
 import os
-import sys
-import json
-import datetime
 from core.evidence_manager import EvidenceManager
 from core.dispatcher import Dispatcher
 
-
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python main.py <evidence_file> [case_name]")
-        sys.exit(1)
-
-    evidence_file = sys.argv[1]
-    case_name = sys.argv[2] if len(sys.argv) > 2 else "Sample_Investigation_001"
-
-    if not os.path.exists(evidence_file):
-        print(f"Error: {evidence_file} not found.")
-        sys.exit(1)
-
-    manager = EvidenceManager(case_name)
-    manager.ingest(evidence_file)
-
+    # 1. Initialize our Forensic Framework
+    # The Case Manager handles the "Legal Foundation"
+    manager = EvidenceManager("Sample_Investigation_001")
+    
+    # The Dispatcher acts as the "Brain"
     dispatcher = Dispatcher()
-    report = dispatcher.dispatch(evidence_file)
 
-    status = report.get("status", "error")
-    print(f"Report Status: {status}")
+    # 2. Point to the evidence
+    target_file = "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf"
+    
+    if not os.path.exists(target_file):
+        print(f"[!] Error: {target_file} not found. Please place it in the /evidence folder.")
+        return
 
-    # Save JSON report to evidence_output
-    os.makedirs("evidence_output", exist_ok=True)
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    report_name = os.path.basename(evidence_file)
-    report_file = f"evidence_output/report_{report_name}_{timestamp}.json"
+    # 3. Phase 1: Evidence Registration (Legal Layer)
+    print(f"\n[+] Phase 1: Registering {target_file}...")
+    manifest = manager.ingest(target_file)
+    print(f"[+] SHA256: {manifest['hashes']['sha256']}")
 
-    saved_report = {
-        "case_name": case_name,
-        "target_file": evidence_file,
-        "status": status,
-        "result": report,
-    }
-
-    with open(report_file, "w") as f:
-        json.dump(saved_report, f, indent=2)
-
-    print(f"Saved JSON report: {report_file}")
-
-    if status == "success":
-        findings = report.get("findings") or report.get("result")
-        print("Findings:")
-        print(json.dumps(findings, indent=2))
-    else:
-        print(f"Error: {report.get('error')}")
-        if report.get("result"):
-            print(json.dumps(report.get("result"), indent=2))
-
+    # 4. Phase 2: Triage (The Brain/Dispatcher)
+    print(f"\n[+] Phase 2: Dispatching workers...")
+    report = dispatcher.dispatch(target_file)
+    
+    # 5. Output the results cleanly
+    if report:
+        print("\n--- TRIAGE ANALYSIS REPORT ---")
+        for worker_name, data in report.get("triage_results", {}).items():
+            print(f"\n[Worker: {worker_name.upper()}]")
+            
+            # Display findings if they exist
+            findings = data.get("findings")
+            if findings:
+                # If findings is a dictionary, print key-value pairs
+                if isinstance(findings, dict):
+                    for key, value in findings.items():
+                        print(f"  > {key}: {value}")
+                else:
+                    print(f"  > {findings}")
+            
+            # Display errors if they occurred
+            if "error" in data:
+                print(f"  [!] ERROR: {data['error']}")
+    
+    print("\n[+] Triage Complete. Check 'output/' for audit logs.")
 
 if __name__ == "__main__":
     main()

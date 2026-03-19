@@ -1,35 +1,49 @@
 from workers.doc_worker import DocWorker
 from workers.capa_worker import CapaWorker
+from workers.yara_worker import YaraWorker
 
 class Dispatcher:
     def __init__(self):
-        # Initialize all workers
-        self.workers = {
+        # The primary worker is based on extension
+        self.primary_workers = {
             'pdf': DocWorker(),
             'docx': DocWorker(),
             'exe': CapaWorker(),
             'dll': CapaWorker()
         }
+        # YARA runs on EVERYTHING as a baseline triage
+        self.baseline_worker = YaraWorker()
 
     def dispatch(self, evidence_path):
-        # 1. Get file extension
         ext = evidence_path.split('.')[-1].lower()
-        worker = self.workers.get(ext)
+        primary_worker = self.primary_workers.get(ext)
         
-        if not worker:
-            return {"status": "error", "error": f"No worker available for extension: {ext}"}
+        results = {
+            "file": evidence_path,
+            "triage_results": {}
+        }
 
-        # 2. Check Dependency (The "Friend's" logic added here)
-        # We assume every worker has a check_dependency() method now
-        if hasattr(worker, 'check_dependency') and not worker.check_dependency():
-            return {"status": "error", "error": f"Tool for {worker.__class__.__name__} is not installed."}
+        # 1. Run Baseline Triage (YARA)
+        print(f"[Dispatcher] Running Baseline (YARA) on {evidence_path}")
+        results["triage_results"]["yara"] = self._run_worker(self.baseline_worker, evidence_path)
 
-        # 3. Process the file
-        print(f"[Dispatcher] Routing {evidence_path} to {worker.__class__.__name__}")
+        # 2. Run Primary Worker (Doc or Capa)
+        if primary_worker:
+            print(f"[Dispatcher] Running Primary ({primary_worker.__class__.__name__}) on {evidence_path}")
+            results["triage_results"]["primary"] = self._run_worker(primary_worker, evidence_path)
+        else:
+            results["triage_results"]["primary"] = {"status": "skipped", "error": "No primary worker for this type."}
+
+        return results
+
+    def _run_worker(self, worker, path):
+        """Helper to ensure every worker follows the same error-handling flow."""
         try:
-            result = worker.process(evidence_path)
-            if isinstance(result, dict) and "error" in result:
-                return {"status": "failed", "error": result.get("error"), "result": result}
-            return {"status": "success", "findings": result, "result": result}
+            # Check dependency first
+            if hasattr(worker, 'check_dependency') and not worker.check_dependency():
+                return {"status": "error", "error": "Dependency check failed."}
+            
+            # Process evidence
+            return worker.process(path)
         except Exception as e:
             return {"status": "error", "error": str(e)}
