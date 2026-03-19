@@ -1,8 +1,9 @@
 from workers.doc_worker import DocWorker
 from workers.capa_worker import CapaWorker
+from workers.timeline_worker import TimelineWorker
 from workers.yara_worker import YaraWorker
 from workers.disk_worker import DiskWorker
-
+from workers.timeline_worker import TimelineWorker
 class Dispatcher:
     def __init__(self):
         # The primary worker is based on extension
@@ -13,7 +14,9 @@ class Dispatcher:
             'dll': CapaWorker(),
             ".img": DiskWorker(),  # <--- Register disk images
             ".dd": DiskWorker(),   # <--- Register raw dumps
-            ".raw": DiskWorker()
+            ".raw": DiskWorker(),
+            "e01": TimelineWorker(), # Added for Disk Images
+            "raw": TimelineWorker() 
         }
         # YARA runs on EVERYTHING as a baseline triage
         self.baseline_worker = YaraWorker()
