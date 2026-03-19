@@ -1,0 +1,11 @@
+# --- Core Framework ---
+# No special requirements yet for core logic, but adding common ones:
+pandas
+jinja2
+weasyprint
+requests
+
+# --- Forensic Worker Dependencies ---
+# These are the Python-based tools we are implementing
+flare-capa
+yara-python
