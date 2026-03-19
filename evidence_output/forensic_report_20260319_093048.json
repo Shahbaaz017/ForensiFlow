@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-03-19T09:30:48.850399",
+  "evidence_file": "evidence/valid_test.exe",
+  "evidence_hashes": {
+    "sha256": "4cf945446e6d45f300ac05e3400b7b003ac85622aba3e687b34a1eaf54c3de15",
+    "md5": "272cb13366c5c8d82fc4ca1da8b96a38"
+  },
+  "triage_results": {
+    "yara": {
+      "worker": "YaraWorker",
+      "status": "success",
+      "findings": {
+        "forensic_markers": {
+          "yara_hits": [],
+          "match_count": 0,
+          "detailed_matches": {}
+        },
+        "raw_metadata": {
+          "match_count": 0,
+          "scan_file": "evidence/valid_test.exe"
+        }
+      },
+      "errors": null
+    },
+    "primary": {
+      "worker": "CapaWorker",
+      "status": "error",
+      "findings": {},
+      "errors": "ERROR    capa: Input file 'evidence/valid_test.exe' is not a valid   main.py:560\n         PE file: 'Invalid NT Headers signature.'                               \n"
+    }
+  },
+  "summary": {
+    "yara_rules_triggered": 0,
+    "primary_worker": "error"
+  }
+}

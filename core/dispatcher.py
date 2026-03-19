@@ -43,7 +43,7 @@ class Dispatcher:
             if hasattr(worker, 'check_dependency') and not worker.check_dependency():
                 return {"status": "error", "error": "Dependency check failed."}
             
-            # Process evidence
-            return worker.process(path)
+            # Call the run() method which uses standardized create_result() formatting
+            return worker.run(path)
         except Exception as e:
             return {"status": "error", "error": str(e)}

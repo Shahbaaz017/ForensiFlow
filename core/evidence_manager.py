@@ -6,12 +6,12 @@ import os
 class EvidenceManager:
     def __init__(self, case_name):
         self.case_name = case_name
-        self.manifest_path = f"output/{case_name}_manifest.json"
-        self.audit_log = f"output/{case_name}_audit.log"
+        self.manifest_path = f"evidence_output/{case_name}_manifest.json"
+        self.audit_log = f"evidence_output/{case_name}_audit.log"
         
         # Ensure output directory exists
-        if not os.path.exists("output"):
-            os.makedirs("output")
+        if not os.path.exists("evidence_output"):
+            os.makedirs("evidence_output")
 
     def calculate_hashes(self, file_path):
         """Generates SHA256 and MD5 hashes for integrity."""

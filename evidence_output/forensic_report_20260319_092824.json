@@ -1,0 +1,68 @@
+{
+  "timestamp": "2026-03-19T09:28:24.048901",
+  "evidence_file": "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf",
+  "evidence_hashes": {
+    "sha256": "681e462e1c89cb5731d07e56c8185a05e964e74329255c8948d8f940d91d0e7e",
+    "md5": "65cf322bda2276da01cfd5c3defefc89"
+  },
+  "triage_results": {
+    "yara": {
+      "worker": "YaraWorker",
+      "status": "success",
+      "findings": {
+        "forensic_markers": {
+          "yara_hits": [
+            "PE_Suspicious_Sections"
+          ],
+          "match_count": 1,
+          "detailed_matches": {
+            "PE_Suspicious_Sections": {
+              "rule_name": "PE_Suspicious_Sections",
+              "tags": [],
+              "metadata": {
+                "description": "Detects PE files with suspicious section names",
+                "severity": "high",
+                "category": "malware"
+              },
+              "matched_strings": [
+                {
+                  "offset": 249029,
+                  "identifier": "$upx",
+                  "value": "UPX",
+                  "size": 3
+                },
+                {
+                  "offset": 259491,
+                  "identifier": "$upx",
+                  "value": "UPX",
+                  "size": 3
+                }
+              ]
+            }
+          }
+        },
+        "raw_metadata": {
+          "match_count": 1,
+          "scan_file": "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf"
+        }
+      },
+      "errors": null
+    },
+    "primary": {
+      "worker": "DocWorker",
+      "status": "success",
+      "findings": {
+        "author": "Scott Clinton",
+        "creation_date": "2026:02:05 04:18:09Z",
+        "modification_date": "2026:02:05 04:18:09Z",
+        "software_used": "macOS Version 26.2 (Build 25C56) Quartz PDFContext",
+        "page_count": 32
+      },
+      "errors": null
+    }
+  },
+  "summary": {
+    "yara_rules_triggered": 1,
+    "primary_worker": "success"
+  }
+}

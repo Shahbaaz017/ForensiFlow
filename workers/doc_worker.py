@@ -22,8 +22,19 @@ class DocWorker(BaseWorker):
             return False
 
     def run(self, file_path: str) -> Dict[str, Any]:
-        """Implements BaseWorker abstract run by delegating to process."""
-        return self.process(file_path)
+        """Implements BaseWorker abstract run with standardized result format."""
+        self.log(f"Starting metadata extraction on: {file_path}")
+        try:
+            result = self.process(file_path)
+            if "error" in result:
+                return self.create_result("DocWorker", "error", errors=result["error"])
+            
+            # Extract findings from the process result
+            findings = result.get("forensic_markers", {})
+            return self.create_result("DocWorker", "success", findings=findings)
+        except Exception as e:
+            self.log(f"Critical error: {str(e)}")
+            return self.create_result("DocWorker", "error", errors=str(e))
 
     def process(self, file_path: str) -> Dict[str, Any]:
         """

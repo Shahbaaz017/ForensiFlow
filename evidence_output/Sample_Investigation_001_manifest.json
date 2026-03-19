@@ -1,0 +1,9 @@
+{
+    "case_name": "Sample_Investigation_001",
+    "evidence_file": "evidence/valid_test.exe",
+    "hashes": {
+        "sha256": "4cf945446e6d45f300ac05e3400b7b003ac85622aba3e687b34a1eaf54c3de15",
+        "md5": "272cb13366c5c8d82fc4ca1da8b96a38"
+    },
+    "ingestion_time": "2026-03-19 09:30:46.976009"
+}

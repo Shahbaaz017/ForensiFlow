@@ -1,4 +1,6 @@
 import os
+import json
+import datetime
 from core.evidence_manager import EvidenceManager
 from core.dispatcher import Dispatcher
 
@@ -11,7 +13,7 @@ def main():
     dispatcher = Dispatcher()
 
     # 2. Point to the evidence
-    target_file = "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf"
+    target_file = "evidence/valid_test.exe"  # Change this to your test file in the /evidence folder
     
     if not os.path.exists(target_file):
         print(f"[!] Error: {target_file} not found. Please place it in the /evidence folder.")
@@ -32,21 +34,78 @@ def main():
         for worker_name, data in report.get("triage_results", {}).items():
             print(f"\n[Worker: {worker_name.upper()}]")
             
-            # Display findings if they exist
             findings = data.get("findings")
+            
             if findings:
-                # If findings is a dictionary, print key-value pairs
-                if isinstance(findings, dict):
+                # Display YARA-specific detailed findings
+                if worker_name == "yara":
+                    fm = findings.get("forensic_markers", {})
+                    yara_hits = fm.get("yara_hits", [])
+                    match_count = fm.get("match_count", 0)
+                    detailed = fm.get("detailed_matches", {})
+                    
+                    if match_count > 0:
+                        print(f"  Matches Found: {match_count}")
+                        print(f"  Triggered Rules:")
+                        for hit in yara_hits:
+                            print(f"    ✓ {hit}")
+                        
+                        if detailed:
+                            print(f"\n  Detailed Findings:")
+                            for rule_name, match_data in detailed.items():
+                                print(f"    Rule: {rule_name}")
+                                if match_data.get("metadata"):
+                                    meta = match_data["metadata"]
+                                    print(f"      Description: {meta.get('description', 'N/A')}")
+                                    print(f"      Severity: {meta.get('severity', 'N/A')}")
+                                if match_data.get("matched_strings"):
+                                    print(f"      Matched Strings ({len(match_data['matched_strings'])}):")
+                                    for s in match_data["matched_strings"][:3]:
+                                        print(f"        - Offset {s['offset']}: {repr(s['value'][:40])}")
+                                    if len(match_data["matched_strings"]) > 3:
+                                        print(f"        ... and {len(match_data['matched_strings']) - 3} more")
+                    else:
+                        print(f"  No matches found")
+                
+                # Display other findings as key-value pairs
+                elif isinstance(findings, dict):
                     for key, value in findings.items():
-                        print(f"  > {key}: {value}")
+                        if isinstance(value, dict):
+                            print(f"  {key}:")
+                            for k, v in value.items():
+                                if isinstance(v, (list, dict)):
+                                    print(f"    {k}: {len(v)} items" if isinstance(v, (list, dict)) else f": {v}")
+                                else:
+                                    print(f"    {k}: {v}")
+                        else:
+                            print(f"  {key}: {value}")
                 else:
-                    print(f"  > {findings}")
+                    print(f"  {findings}")
             
             # Display errors if they occurred
             if "error" in data:
                 print(f"  [!] ERROR: {data['error']}")
     
-    print("\n[+] Triage Complete. Check 'output/' for audit logs.")
+    # 6. Save report to JSON in evidence_output
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    report_path = os.path.join("evidence_output", f"forensic_report_{timestamp}.json")
+
+    json_report = {
+        "timestamp": datetime.datetime.now().isoformat(),
+        "evidence_file": target_file,
+        "evidence_hashes": manifest.get("hashes", {}),
+        "triage_results": report.get("triage_results", {}),
+        "summary": {
+            "yara_rules_triggered": len(report.get("triage_results", {}).get("yara", {}).get("findings", {}).get("forensic_markers", {}).get("yara_hits", [])),
+            "primary_worker": report.get("triage_results", {}).get("primary", {}).get("status")
+        }
+    }
+
+    with open(report_path, "w") as f:
+        json.dump(json_report, f, indent=2)
+
+    print(f"\n[+] JSON report written to: {report_path}")
+    print("\n[+] Triage Complete. Check 'evidence_output/' for audit logs and detailed reports.")
 
 if __name__ == "__main__":
     main()
