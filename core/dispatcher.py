@@ -27,6 +27,9 @@ class Dispatcher:
         # 3. Process the file
         print(f"[Dispatcher] Routing {evidence_path} to {worker.__class__.__name__}")
         try:
-            return worker.process(evidence_path)
+            result = worker.process(evidence_path)
+            if isinstance(result, dict) and "error" in result:
+                return {"status": "failed", "error": result.get("error"), "result": result}
+            return {"status": "success", "findings": result, "result": result}
         except Exception as e:
             return {"status": "error", "error": str(e)}

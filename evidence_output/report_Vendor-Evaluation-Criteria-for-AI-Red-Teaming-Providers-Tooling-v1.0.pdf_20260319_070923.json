@@ -1,0 +1,86 @@
+{
+  "case_name": "Sample_Investigation_001",
+  "target_file": "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf",
+  "status": "success",
+  "result": {
+    "status": "success",
+    "findings": {
+      "worker": "DocWorker-ExifTool",
+      "forensic_markers": {
+        "author": "Scott Clinton",
+        "creation_date": "2026:02:05 04:18:09Z",
+        "modification_date": "2026:02:05 04:18:09Z",
+        "software_used": "macOS Version 26.2 (Build 25C56) Quartz PDFContext",
+        "page_count": 32
+      },
+      "raw_metadata": {
+        "SourceFile": "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf",
+        "ExifTool": {
+          "ExifToolVersion": 12.76
+        },
+        "File": {
+          "FileName": "Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf",
+          "Directory": "evidence",
+          "FileSize": "1505 kB",
+          "FileModifyDate": "2026:03:19 06:27:53+00:00",
+          "FileAccessDate": "2026:03:19 06:28:15+00:00",
+          "FileInodeChangeDate": "2026:03:19 06:28:12+00:00",
+          "FilePermissions": "-rw-rw-rw-",
+          "FileType": "PDF",
+          "FileTypeExtension": "pdf",
+          "MIMEType": "application/pdf"
+        },
+        "PDF": {
+          "Linearized": "No",
+          "PageCount": 32,
+          "PDFVersion": 1.4,
+          "Title": "Vendor Evaluation Criteria for AI Red Teaming Providers & Tooling-Jan26",
+          "Producer": "macOS Version 26.2 (Build 25C56) Quartz PDFContext",
+          "Author": "Scott Clinton",
+          "Creator": "Word",
+          "CreateDate": "2026:02:05 04:18:09Z",
+          "ModifyDate": "2026:02:05 04:18:09Z"
+        }
+      }
+    },
+    "result": {
+      "worker": "DocWorker-ExifTool",
+      "forensic_markers": {
+        "author": "Scott Clinton",
+        "creation_date": "2026:02:05 04:18:09Z",
+        "modification_date": "2026:02:05 04:18:09Z",
+        "software_used": "macOS Version 26.2 (Build 25C56) Quartz PDFContext",
+        "page_count": 32
+      },
+      "raw_metadata": {
+        "SourceFile": "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf",
+        "ExifTool": {
+          "ExifToolVersion": 12.76
+        },
+        "File": {
+          "FileName": "Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf",
+          "Directory": "evidence",
+          "FileSize": "1505 kB",
+          "FileModifyDate": "2026:03:19 06:27:53+00:00",
+          "FileAccessDate": "2026:03:19 06:28:15+00:00",
+          "FileInodeChangeDate": "2026:03:19 06:28:12+00:00",
+          "FilePermissions": "-rw-rw-rw-",
+          "FileType": "PDF",
+          "FileTypeExtension": "pdf",
+          "MIMEType": "application/pdf"
+        },
+        "PDF": {
+          "Linearized": "No",
+          "PageCount": 32,
+          "PDFVersion": 1.4,
+          "Title": "Vendor Evaluation Criteria for AI Red Teaming Providers & Tooling-Jan26",
+          "Producer": "macOS Version 26.2 (Build 25C56) Quartz PDFContext",
+          "Author": "Scott Clinton",
+          "Creator": "Word",
+          "CreateDate": "2026:02:05 04:18:09Z",
+          "ModifyDate": "2026:02:05 04:18:09Z"
+        }
+      }
+    }
+  }
+}
