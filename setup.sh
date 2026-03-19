@@ -70,3 +70,15 @@ echo "Run 'source venv/bin/activate' to start developing."
 echo "-------------------------------------------------------"
 
 sudo apt-get install sleuthkit -y
+
+echo "[+] Updating system..."
+sudo apt update
+
+echo "[+] Installing Plaso (log2timeline)..."
+# This installs all necessary system binaries and dependencies
+sudo apt install -y software-properties-common
+sudo add-apt-repository -y ppa:gift/stable
+sudo apt update
+sudo apt install -y plaso
+
+echo "[+] Setup Complete! Plaso is ready."
