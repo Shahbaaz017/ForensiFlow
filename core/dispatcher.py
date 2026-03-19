@@ -1,6 +1,7 @@
 from workers.doc_worker import DocWorker
 from workers.capa_worker import CapaWorker
 from workers.yara_worker import YaraWorker
+from workers.disk_worker import DiskWorker
 
 class Dispatcher:
     def __init__(self):
@@ -9,7 +10,10 @@ class Dispatcher:
             'pdf': DocWorker(),
             'docx': DocWorker(),
             'exe': CapaWorker(),
-            'dll': CapaWorker()
+            'dll': CapaWorker(),
+            ".img": DiskWorker(),  # <--- Register disk images
+            ".dd": DiskWorker(),   # <--- Register raw dumps
+            ".raw": DiskWorker()
         }
         # YARA runs on EVERYTHING as a baseline triage
         self.baseline_worker = YaraWorker()

@@ -68,3 +68,5 @@ echo "-------------------------------------------------------"
 echo "[COMPLETE] Environment is ready for Phase 2."
 echo "Run 'source venv/bin/activate' to start developing."
 echo "-------------------------------------------------------"
+
+sudo apt-get install sleuthkit -y
