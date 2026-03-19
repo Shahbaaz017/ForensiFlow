@@ -2,8 +2,8 @@ import os
 import sys
 import json
 import datetime
-from doc_worker import DocWorker
-# from yara_worker import YaraWorker  # Placeholder for your next task
+from workers.doc_worker import DocWorker
+# from workers.yara_worker import YaraWorker  # Placeholder for your next task
 
 class Orchestrator:
     def __init__(self):

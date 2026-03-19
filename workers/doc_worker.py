@@ -2,8 +2,8 @@ import subprocess
 import json
 import os
 from typing import Dict, Any
-# Assuming BaseWorker is in a file named base_worker.py
-from base_worker import BaseWorker
+# Assuming BaseWorker is in workers/base_worker.py
+from workers.base_worker import BaseWorker
 
 class DocWorker(BaseWorker):
     def __init__(self):
@@ -20,6 +20,10 @@ class DocWorker(BaseWorker):
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
+
+    def run(self, file_path: str) -> Dict[str, Any]:
+        """Implements BaseWorker abstract run by delegating to process."""
+        return self.process(file_path)
 
     def process(self, file_path: str) -> Dict[str, Any]:
         """

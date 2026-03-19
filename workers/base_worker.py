@@ -8,6 +8,9 @@ class BaseWorker(metaclass=abc.ABCMeta):
     This ensures consistency across the ForensiFlow framework.
     """
 
+    def __init__(self, worker_name: str = "GenericWorker"):
+        self.worker_name = worker_name
+
     @abc.abstractmethod
     def run(self, evidence_path: str) -> dict:
         """
