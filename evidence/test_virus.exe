@@ -1,5 +1,0 @@
-# Create an evidence folder if it doesn't exist
-mkdir -p evidence
-
-# Download the EICAR test file (this is safe, it's just a test string)
-curl -o evidence/test_virus.exe https://www.eicar.org/download/eicar.com.txt

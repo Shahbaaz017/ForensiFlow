@@ -1,0 +1,9 @@
+{
+  "case_name": "Sample_Investigation_001",
+  "target_file": "evidence/capa_test.exe",
+  "status": "error",
+  "result": {
+    "status": "error",
+    "error": "'CapaWorker' object has no attribute 'process'"
+  }
+}

@@ -1,9 +1,9 @@
 {
     "case_name": "Sample_Investigation_001",
-    "evidence_file": "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf",
+    "evidence_file": "evidence/capa_test.exe",
     "hashes": {
-        "sha256": "681e462e1c89cb5731d07e56c8185a05e964e74329255c8948d8f940d91d0e7e",
-        "md5": "65cf322bda2276da01cfd5c3defefc89"
+        "sha256": "bf038f7253c43946c22b24fd42e37bb200cd963cf4dfb00f5a63bd86fde2df76",
+        "md5": "a4747b566fa77fb4c6f4d6d80c3983ac"
     },
-    "ingestion_time": "2026-03-19 07:09:22.707046"
+    "ingestion_time": "2026-03-19 07:22:22.260236"
 }
