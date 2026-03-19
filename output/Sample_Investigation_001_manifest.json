@@ -1,9 +1,9 @@
 {
     "case_name": "Sample_Investigation_001",
-    "evidence_file": "evidence/test_virus.exe",
+    "evidence_file": "evidence/Vendor-Evaluation-Criteria-for-AI-Red-Teaming-Providers-Tooling-v1.0.pdf",
     "hashes": {
-        "sha256": "197ef036404bf989ebb7fe0c635b908574fbedf8ab4fd31a4a258faf1857a787",
-        "md5": "1e7fdbc62ebf64c4f827354f7dd012d5"
+        "sha256": "681e462e1c89cb5731d07e56c8185a05e964e74329255c8948d8f940d91d0e7e",
+        "md5": "65cf322bda2276da01cfd5c3defefc89"
     },
-    "ingestion_time": "2026-03-19 06:47:27.284562"
+    "ingestion_time": "2026-03-19 07:02:31.672427"
 }
